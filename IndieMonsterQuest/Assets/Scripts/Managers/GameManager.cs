@@ -1,11 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace MonsterQuest
 {
     public class GameManager : MonoBehaviour
     {
+        private CombatManager combatManager;
+        void Awake()
+        {
+            Transform combatTransform = transform.Find("Combat");
+            combatManager = combatTransform.GetComponent<CombatManager>();
+        }
+
         // Start is called before the first frame update
         void Start()
         {
@@ -15,88 +23,32 @@ namespace MonsterQuest
             characterNames.Add("Dayana");
             characterNames.Add("Rolando");
 
-            int orcHP = DiceRoll(2, 8, 6);
+            int orcHP = DiceHelper.Roll("2d8+6");
             int orcDC = 10;
 
-            int azerHP = DiceRoll(6, 8, 12);
-            int azerDC = 18;
+            int azerHP = DiceHelper.Roll("6d8+12");
+            int azerDC = 12;
 
-            int trollHP = DiceRoll(8, 10, 40);
-            int trollDC = 16;
+            int trollHP = DiceHelper.Roll("8d10+20");
+            int trollDC = 14;
 
-            SimulateCombat(characterNames, "troll", trollHP, trollDC);
-        }
-
-        static int DiceRoll(int numberOfRolls, int diceSides, int fixedBonus = 0)
-        {
-            int result = 0;
-
-            for (int i = 0; i < numberOfRolls; i++)
+            combatManager.Simulate(characterNames, "orc", orcHP, orcDC);
+            if (characterNames.Count > 0)
             {
-                result += Random.Range(0, diceSides);
+                combatManager.Simulate(characterNames, "azer", azerHP, azerDC);
+            }
+            if (characterNames.Count > 0)
+            {
+                combatManager.Simulate(characterNames, "troll", trollHP, trollDC);
             }
 
-            result += fixedBonus;
-
-            return result;
-        }
-
-        static void SimulateCombat(List<string> characterNames, string monsterName, int monsterHP, int savingThrowDC)
-        {
-            Console.WriteLine($"A {monsterName} with {monsterHP} appears!");
-
-            while (monsterHP > 0)
+            if (characterNames.Count == 1)
             {
-                for (int i = 0; i < characterNames.Count; i++)
-                {
-                    int damage = DiceRoll(2, 6);
-
-                    monsterHP -= damage;
-
-                    if (monsterHP < 0)
-                    {
-                        monsterHP = 0;
-                        Console.WriteLine($"{characterNames[i]} hits the {monsterName} for {damage} damage. The {monsterHP} has {monsterHP} HP left.");
-                        break;
-                    }
-                    Console.WriteLine($"{characterNames[i]} hits the basilisk for {damage} damage. {monsterName} has {monsterHP} HP left.");
-                }
-
-                if (monsterHP == 0)
-                {
-                    break;
-                }
-
-                int target = Random.Range(0, characterNames.Count);
-
-                Console.WriteLine($"The {monsterName} uses its petrifying gaze on {characterNames[target]}!");
-
-                int constitutionSave = DiceRoll(1, 20, 3);
-
-                if (constitutionSave < savingThrowDC)
-                {
-                    Console.WriteLine($"{characterNames[target]} rolls a {constitutionSave} and fails to be saved. {characterNames[target]} is knocked out.");
-                    characterNames.RemoveAt(target);
-                }
-                else
-                {
-                    Console.WriteLine($"{characterNames[target]} rolls a {constitutionSave} and is saved from the attack.");
-                }
-
-                if (characterNames.Count == 0)
-                {
-                    break;
-                }
-
+                Console.WriteLine($"After three grueling battles, the hero {StringHelper.JoinWithAnd(characterNames)} returns from the dungeons to live another day.");
             }
-
-            if (characterNames.Count == 0)
+            else if (characterNames.Count != 0)
             {
-                Console.WriteLine($"The party has failed and the {monsterName} roams free.");
-            }
-            else if (monsterHP == 0)
-            {
-                Console.WriteLine($"The {monsterName} collapses and the heroes celebrate their victory!");
+                Console.WriteLine($"After three grueling battles, the heroes {StringHelper.JoinWithAnd(characterNames)} return from the dungeons to live another day.");    
             }
         }
     }
