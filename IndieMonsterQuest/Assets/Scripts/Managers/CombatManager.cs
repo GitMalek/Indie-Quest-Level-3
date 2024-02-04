@@ -1,13 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MonsterQuest
 {
     public class CombatManager : MonoBehaviour
     {
-        public void Simulate(List<string> characterNames, string monsterName, int monsterHP, int savingThrowDC)
+        public void Simulate(GameState gameState)
         {
+            Party party = gameState.party;
+            List<string> characterNames = new List<string>();
+
+            foreach (Character character in party.characters)
+            {
+                characterNames.Add(character.displayName);
+            }
+
+            string monsterName = gameState.combat.monster.displayName;
+            int monsterHP = gameState.combat.monster.hitPoints;
+            int savingThrowDC = gameState.combat.monster.savingThrowDC;
+
             Console.WriteLine($"{StringHelper.JoinWithAnd(characterNames)} enter the dungeon.");
             Console.WriteLine($"Watch out, {monsterName} with {monsterHP} HP appears!");
 
