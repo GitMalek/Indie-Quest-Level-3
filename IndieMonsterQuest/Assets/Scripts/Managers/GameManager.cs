@@ -8,43 +8,77 @@ namespace MonsterQuest
 {
     public class GameManager : MonoBehaviour
     {
-        private CombatManager combatManager;
         private GameState gameState;
+
+        private CombatManager combatManager;
+        private CombatPresenter combatPresenter;
+
+        [SerializeField] private Sprite[] characterSprite = new Sprite[4];
+        [SerializeField] private Sprite[] monsterSprite = new Sprite[3];
 
         void Awake()
         {
             Transform combatTransform = transform.Find("Combat");
             combatManager = combatTransform.GetComponent<CombatManager>();
+            combatPresenter = combatTransform.GetComponent<CombatPresenter>();
         }
 
         // Start is called before the first frame update
-        void Start()
+        IEnumerator Start()
         {
             NewGame();
-            Simulate();
+            yield return Simulate();
         }
 
         void NewGame()
         {
             Party party = new Party(new List<Character>
             {
-                new Character("Jazlyn"), new Character("Theron"), new Character("Dayana"), new Character("Rolando")
+                new Character("Jazlyn", characterSprite[0], 10, SizeCategory.Medium), 
+                new Character("Theron", characterSprite[1], 10, SizeCategory.Medium), 
+                new Character("Dayana", characterSprite[2], 10, SizeCategory.Medium), 
+                new Character("Rolando", characterSprite[3], 10, SizeCategory.Medium)
             });
 
             gameState = new GameState(party);
         }
 
-        void Simulate()
+        IEnumerator Simulate()
         {
-            Monster orc = new Monster("orc", DiceHelper.Roll("2d8+6"), 10);
-            Monster azer = new Monster("azer", DiceHelper.Roll("6d8+12"), 12);
-            Monster troll = new Monster("troll", DiceHelper.Roll("8d10+20"), 10);
+            combatPresenter.InitializeParty(gameState);
+            Monster orc = new Monster("orc", monsterSprite[0], DiceHelper.Roll("2d8+6"), SizeCategory.Medium, 10);
+            Monster azer = new Monster("azer", monsterSprite[1], DiceHelper.Roll("6d8+12"), SizeCategory.Medium, 12);
+            Monster troll = new Monster("troll", monsterSprite[2], DiceHelper.Roll("8d10+20"), SizeCategory.Large, 10);
 
             gameState.EnterCombatWithMonster(orc);
-            gameState.EnterCombatWithMonster(azer);
-            gameState.EnterCombatWithMonster(troll);
+            combatPresenter.InitializeMonster(gameState);
 
-            combatManager.Simulate(gameState);
+            yield return combatManager.Simulate(gameState);
+
+            if (gameState.party.characters.Count > 0)
+            {
+                gameState.EnterCombatWithMonster(azer);
+                combatPresenter.InitializeMonster(gameState);
+                yield return combatManager.Simulate(gameState);
+            }
+
+
+
+            if (gameState.party.characters.Count > 0)
+            {
+                gameState.EnterCombatWithMonster(troll);
+                combatPresenter.InitializeMonster(gameState);
+                yield return combatManager.Simulate(gameState);
+            }
+
+            if (gameState.party.characters.Count == 0)
+            {
+                Console.WriteLine($"The party was defeated.");
+            }
+            else
+            {
+                Console.WriteLine($"After 3 battles, the party emerges victorious.");
+            }
         }
     }
 }

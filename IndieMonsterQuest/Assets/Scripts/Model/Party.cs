@@ -1,18 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MonsterQuest
 {
     public class Party
     {
-        private List<Character> _characters;
+        public List<Character> characters {  get; private set; }
 
         public Party(IEnumerable<Character> initialCharacters)
         {
-            _characters = new List<Character>(initialCharacters);
+            this.characters = initialCharacters.ToList();
         }
-
-        public IEnumerable<Character> characters => _characters;
     }
 }

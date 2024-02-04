@@ -4,13 +4,14 @@ using UnityEngine;
 
 namespace MonsterQuest
 {
-    public class Character
+    public class Character : Creature
     {
-        public string displayName { get; private set; }
-
-        public Character(string displayName)
+        public Character(string displayName, Sprite bodySprite, int hitPointsMaximum, SizeCategory sizeCategory) : base(displayName, bodySprite, hitPointsMaximum, sizeCategory)
         {
             this.displayName = displayName;
+            this.bodySprite = bodySprite;
+            this.hitPointsMaximum = hitPointsMaximum;
+            this.sizeCategory = sizeCategory;
         }
     }
 }
