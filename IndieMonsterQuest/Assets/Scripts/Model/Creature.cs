@@ -20,14 +20,11 @@ namespace MonsterQuest
         public CreaturePresenter presenter { get; private set; }
 
 
-        public Creature(string displayName, Sprite bodySprite, int hitPointsMaximum, SizeCategory sizeCategory)
+        public Creature(string displayName, Sprite bodySprite, SizeCategory sizeCategory)
         {
             this.displayName = displayName;
             this.bodySprite = bodySprite;
-            this.hitPointsMaximum = hitPointsMaximum;
             this.sizeCategory = sizeCategory;
-
-            hitPoints = hitPointsMaximum;
         }
 
         public void InitializePresenter(CreaturePresenter presenter)
@@ -41,8 +38,14 @@ namespace MonsterQuest
             yield return presenter.TakeDamage();
             if (hitPoints == 0)
             {
+                Console.WriteLine("They're knocked out!");
                 yield return presenter.Die();
             }
+        }
+
+        protected void Initialize()
+        {
+            hitPoints = hitPointsMaximum;
         }
     }
 }

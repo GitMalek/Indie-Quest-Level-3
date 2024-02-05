@@ -19,13 +19,13 @@ namespace MonsterQuest
             return Roll(numberOfRolls, diceSides, fixedBonus);
         }
 
-        private static int Roll(int numberOfRolls, int diceSides, int fixedBonus = 0)
+        private static int Roll(int numberOfRolls, int diceSides, int fixedBonus)
         {
             int result = 0;
 
             for (int i = 0; i < numberOfRolls; i++)
             {
-                result += Random.Range(0, diceSides);
+                result += Random.Range(1, diceSides);
             }
 
             result += fixedBonus;

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a0b78e58455e6049826a8d6f4e2d9b0, type: 3}
+  m_Name: Orc
+  m_EditorClassIdentifier: 
+  displayName: Orc
+  alignment: Chaotic Evil
+  hitPointsRoll: 2d8+6
+  armorClass: 13
+  bodySprite: {fileID: 21300000, guid: 19e0e065e541e48ae99ff4998c0ee5db, type: 3}
+  sizeCategory: 3
+  armorType: {fileID: 11400000, guid: 242c699a8677ca74d94a15b8bc87078e, type: 2}
+  weaponTypes:
+  - {fileID: 11400000, guid: b00fd0943bff18f4e846a49250f12082, type: 2}
+  - {fileID: 11400000, guid: 55f0076dfa0f57f49895b9c71281587f, type: 2}

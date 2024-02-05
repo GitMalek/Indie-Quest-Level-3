@@ -14,7 +14,7 @@ namespace MonsterQuest
         private CombatPresenter combatPresenter;
 
         [SerializeField] private Sprite[] characterSprite = new Sprite[4];
-        [SerializeField] private Sprite[] monsterSprite = new Sprite[3];
+        [SerializeField] private MonsterType[] monsterTypes = new MonsterType[3];
 
         void Awake()
         {
@@ -26,18 +26,21 @@ namespace MonsterQuest
         // Start is called before the first frame update
         IEnumerator Start()
         {
+            yield return Database.Initialize();
             NewGame();
             yield return Simulate();
         }
 
         void NewGame()
         {
+            List<WeaponType> validWeapons = Database.itemTypes.Where(itemType => itemType is WeaponType { weight: > 0 }).Cast<WeaponType>().ToList();
+
             Party party = new Party(new List<Character>
             {
-                new Character("Jazlyn", characterSprite[0], 10, SizeCategory.Medium), 
-                new Character("Theron", characterSprite[1], 10, SizeCategory.Medium), 
-                new Character("Dayana", characterSprite[2], 10, SizeCategory.Medium), 
-                new Character("Rolando", characterSprite[3], 10, SizeCategory.Medium)
+                new Character("Jazlyn", characterSprite[0], 10, SizeCategory.Medium, validWeapons[Random.Range(0, validWeapons.Count)], Database.GetItemType<ArmorType>("Studded Leather")), 
+                new Character("Theron", characterSprite[1], 10, SizeCategory.Medium, validWeapons[Random.Range(0, validWeapons.Count)], Database.GetItemType<ArmorType>("Studded Leather")), 
+                new Character("Dayana", characterSprite[2], 10, SizeCategory.Medium, validWeapons[Random.Range(0, validWeapons.Count)], Database.GetItemType < ArmorType >("Studded Leather")), 
+                new Character("Rolando", characterSprite[3], 10, SizeCategory.Medium, validWeapons[Random.Range(0, validWeapons.Count)], Database.GetItemType < ArmorType >("Studded Leather"))
             });
 
             gameState = new GameState(party);
@@ -46,14 +49,21 @@ namespace MonsterQuest
         IEnumerator Simulate()
         {
             combatPresenter.InitializeParty(gameState);
-            Monster orc = new Monster("orc", monsterSprite[0], DiceHelper.Roll("2d8+6"), SizeCategory.Medium, 10);
-            Monster azer = new Monster("azer", monsterSprite[1], DiceHelper.Roll("6d8+12"), SizeCategory.Medium, 12);
-            Monster troll = new Monster("troll", monsterSprite[2], DiceHelper.Roll("8d10+20"), SizeCategory.Large, 10);
+            Monster Kobold = new Monster(monsterTypes[0]);
+            Monster orc = new Monster(monsterTypes[1]);
+            Monster azer = new Monster(monsterTypes[2]);
+            Monster troll = new Monster(monsterTypes[3]);
 
-            gameState.EnterCombatWithMonster(orc);
+            gameState.EnterCombatWithMonster(Kobold);
             combatPresenter.InitializeMonster(gameState);
-
             yield return combatManager.Simulate(gameState);
+
+            if (gameState.party.characters.Count > 0)
+            {
+                gameState.EnterCombatWithMonster(orc);
+                combatPresenter.InitializeMonster(gameState);
+                yield return combatManager.Simulate(gameState);
+            }
 
             if (gameState.party.characters.Count > 0)
             {
@@ -75,9 +85,13 @@ namespace MonsterQuest
             {
                 Console.WriteLine($"The party was defeated.");
             }
+            else if (gameState.party.characters.Count != 1)
+            {
+                Console.WriteLine($"After 3 battles, {StringHelper.JoinWithAnd(gameState.party.characters.Select(x => x.displayName).ToList())} emerge victorious.");
+            }
             else
             {
-                Console.WriteLine($"After 3 battles, the party emerges victorious.");
+                Console.WriteLine($"After 3 battles, {gameState.party.characters[0].displayName} emerges victorious.");
             }
         }
     }

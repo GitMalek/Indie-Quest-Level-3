@@ -10,36 +10,27 @@ namespace MonsterQuest
         public IEnumerator Simulate(GameState gameState)
         {
             Party party = gameState.party;
-            List<string> characterNames = new List<string>();
-
-            foreach (Character character in party.characters)
-            {
-                characterNames.Add(character.displayName);
-            }
+            List<string> characterNames = party.characters.Select(x => x.displayName).ToList();
 
             string monsterName = gameState.combat.monster.displayName;
-            int savingThrowDC = gameState.combat.monster.savingThrowDC;
 
-            Console.WriteLine($"{StringHelper.JoinWithAnd(characterNames)} enter the dungeon.");
+            Console.WriteLine($"{StringHelper.JoinWithAnd(characterNames)} proceed deeper into the dungeon.");
             Console.WriteLine($"Watch out, {monsterName} with {gameState.combat.monster.hitPoints} HP appears!");
 
             while (gameState.combat.monster.hitPoints > 0)
             {
                 for (int i = 0; i < gameState.party.characters.Count; i++)
                 {
-                    int damage = DiceHelper.Roll("2d6");
+                    int damage = DiceHelper.Roll(gameState.party.characters[i].weaponType.damageRoll);
 
                     yield return gameState.party.characters[i].presenter.Attack();
-
+                    Console.WriteLine($"{characterNames[i]} hits the {monsterName} with a {gameState.party.characters[i].weaponType.displayName} for {damage} damage. The {monsterName} has {Mathf.Max(0, gameState.combat.monster.hitPoints - damage)} HP left.");
                     yield return gameState.combat.monster.ReactToDamage(damage);
-
 
                     if (gameState.combat.monster.hitPoints == 0)
                     {
-                        Console.WriteLine($"{gameState.party.characters[i].displayName} hits the {monsterName} for {damage} damage. The {monsterName} has {gameState.combat.monster.hitPoints} HP left.");
                         break;
                     }
-                    Console.WriteLine($"{gameState.party.characters[i].displayName} hits the {monsterName} for {damage} damage. {monsterName} has {gameState.combat.monster.hitPoints} HP left.");
                 }
 
                 if (gameState.combat.monster.hitPoints == 0)
@@ -48,21 +39,18 @@ namespace MonsterQuest
                 }
 
                 int target = Random.Range(0, gameState.party.characters.Count);
+                int weaponChoice = Random.Range(0, gameState.combat.monster.weapons.Count);
+                string weaponName = gameState.combat.monster.weapons[weaponChoice].displayName;
+                int weaponDamage = DiceHelper.Roll(gameState.combat.monster.weapons[weaponChoice].damageRoll);
 
-                Console.WriteLine($"The {monsterName} attacks {gameState.party.characters[target].displayName}!");
+                Console.WriteLine($"The {monsterName} attacks {gameState.party.characters[target].displayName} with a {gameState.combat.monster.weapons[weaponChoice].displayName}");
 
-                int constitutionSave = DiceHelper.Roll("1d20+3");
-
-                if (constitutionSave < savingThrowDC)
+                yield return gameState.combat.monster.presenter.Attack();
+                Console.WriteLine($"It does {weaponDamage} damage! {gameState.party.characters[target].displayName} has {Mathf.Max(0, gameState.party.characters[target].hitPoints - weaponDamage)} HP left!");
+                yield return gameState.party.characters[target].ReactToDamage(weaponDamage);
+                if (gameState.party.characters[target].hitPoints == 0)
                 {
-                    yield return gameState.combat.monster.presenter.Attack();
-                    Console.WriteLine($"{gameState.party.characters[target].displayName} rolls a {constitutionSave} and fails to be saved. {gameState.party.characters[target].displayName} is knocked out.");
-                    yield return gameState.party.characters[target].ReactToDamage(10);
-                    party.characters.Remove(party.characters[target]);
-                }
-                else
-                {
-                    Console.WriteLine($"{gameState.party.characters[target].displayName} rolls a {constitutionSave} and is saved from the attack.");
+                    gameState.party.characters.Remove(gameState.party.characters[target]);
                 }
 
                 if (gameState.party.characters.Count == 0)

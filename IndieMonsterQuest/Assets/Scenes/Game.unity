@@ -698,10 +698,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 05200a5325ada4d1dbd78ee326031452, type: 3}
   - {fileID: 21300000, guid: e902acf33b7bc4135b6e250d8c77ad21, type: 3}
   - {fileID: 21300000, guid: e12d725ecf6954adf9e66d736a1d0c22, type: 3}
-  monsterSprite:
-  - {fileID: 21300000, guid: 19e0e065e541e48ae99ff4998c0ee5db, type: 3}
-  - {fileID: 21300000, guid: c4e067472c3b8482c974dac88c53187a, type: 3}
-  - {fileID: 21300000, guid: f1fa343faea49484d895a671f5ea4a29, type: 3}
+  monsterTypes:
+  - {fileID: 11400000, guid: ea87a065c59d0e44fb4eb340c61cbafb, type: 2}
+  - {fileID: 11400000, guid: 8bb054b171f4aa74280e0f458c1a7895, type: 2}
+  - {fileID: 11400000, guid: f1261ae3d4b43914685606ae54b9da58, type: 2}
+  - {fileID: 11400000, guid: 1a0795029113c5c449665c853d50f515, type: 2}
 --- !u!1 &1088585501
 GameObject:
   m_ObjectHideFlags: 0
