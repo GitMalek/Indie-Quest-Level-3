@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ResourceManagement.ResourceProviders.Simulation;
 
 namespace MonsterQuest
 {
-    public class Creature
+    public abstract class Creature
     {
         public string displayName { get; protected set; }
         public Sprite bodySprite { get; protected set; }
@@ -19,12 +20,25 @@ namespace MonsterQuest
 
         public CreaturePresenter presenter { get; private set; }
 
+        public abstract IEnumerable<bool> deathSavingThrows { get; }
+
+        public int deathSavingThrowSuccesses => _deathSavingThrowSuccesses;
+        public int _deathSavingThrowSuccesses = 0;
+
+        public int deathSavingThrowFailures => _deathSavingThrowFailures;
+        public int _deathSavingThrowFailures = 0;
+
+        public LifeStatus lifeStatus { get; protected set; }
+
+        public abstract int armorClass { get; }
 
         public Creature(string displayName, Sprite bodySprite, SizeCategory sizeCategory)
         {
             this.displayName = displayName;
             this.bodySprite = bodySprite;
             this.sizeCategory = sizeCategory;
+
+            lifeStatus = LifeStatus.Conscious;
         }
 
         public void InitializePresenter(CreaturePresenter presenter)
@@ -32,20 +46,33 @@ namespace MonsterQuest
             this.presenter = presenter;
         }
 
-        public IEnumerator ReactToDamage(int damageAmount)
+        public virtual IEnumerator ReactToDamage(int damageAmount, bool wasCriticalHit = false)
         {
             hitPoints = Mathf.Max(0, hitPoints - damageAmount);
             yield return presenter.TakeDamage();
+
+
             if (hitPoints == 0)
             {
-                Console.WriteLine("They're knocked out!");
+                Console.WriteLine("They die!");
+                lifeStatus = LifeStatus.Dead;
                 yield return presenter.Die();
             }
         }
+
+        public virtual IEnumerator Heal(int amount)
+        {
+            hitPoints = Mathf.Min(hitPointsMaximum, hitPoints + amount);
+            yield return presenter.Heal();
+        }
+
+        public abstract IAction TakeTurn(GameState gameState);
 
         protected void Initialize()
         {
             hitPoints = hitPointsMaximum;
         }
+
+
     }
 }

@@ -25,7 +25,7 @@ namespace MonsterQuest
 
             for (int i = 0; i < numberOfRolls; i++)
             {
-                result += Random.Range(1, diceSides);
+                result += Random.Range(1, diceSides + 1);
             }
 
             result += fixedBonus;

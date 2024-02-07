@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace MonsterQuest
@@ -13,24 +15,27 @@ namespace MonsterQuest
             _creaturesTransform = transform.Find("Creatures");
         }
 
-        public void InitializeParty(GameState gameState)
+        public IEnumerator InitializeParty(GameState gameState)
         {
+            Character[] characters = gameState.party.characters.ToArray();
+
             // Create the character views.
-            for (int i = 0; i < gameState.party.characters.Count; i++)
+            for (int i = 0; i < characters.Length; i++)
             {
-                Creature character = gameState.party.characters[i];
+                Creature character = characters[i];
 
                 GameObject characterGameObject = Instantiate(creaturePrefab, _creaturesTransform);
                 characterGameObject.name = character.displayName;
-                characterGameObject.transform.position = new Vector3(((gameState.party.characters.Count - 1) * -0.5f + i) * 5, character.spaceInFeet / 2, 0);
+                characterGameObject.transform.position = new Vector3(((characters.Length - 1) * -0.5f + i) * 5, character.spaceInFeet / 2, 0);
 
                 CreaturePresenter creaturePresenter = characterGameObject.GetComponent<CreaturePresenter>();
                 creaturePresenter.Initialize(character);
-                creaturePresenter.FaceDirection(CardinalDirection.South);
+
+                yield return creaturePresenter.FaceDirection(CardinalDirection.South, true);
             }
         }
 
-        public void InitializeMonster(GameState gameState)
+        public IEnumerator InitializeMonster(GameState gameState)
         {
             Combat combat = gameState.combat;
 
@@ -41,7 +46,8 @@ namespace MonsterQuest
 
             CreaturePresenter creaturePresenter = monsterGameObject.GetComponent<CreaturePresenter>();
             creaturePresenter.Initialize(combat.monster);
-            creaturePresenter.FaceDirection(CardinalDirection.North);
+
+            yield return creaturePresenter.FaceDirection(CardinalDirection.North, true);
         }
     }
 }

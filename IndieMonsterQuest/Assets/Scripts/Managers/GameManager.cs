@@ -48,50 +48,50 @@ namespace MonsterQuest
 
         IEnumerator Simulate()
         {
-            combatPresenter.InitializeParty(gameState);
+            yield return combatPresenter.InitializeParty(gameState);
             Monster Kobold = new Monster(monsterTypes[0]);
             Monster orc = new Monster(monsterTypes[1]);
             Monster azer = new Monster(monsterTypes[2]);
             Monster troll = new Monster(monsterTypes[3]);
 
             gameState.EnterCombatWithMonster(Kobold);
-            combatPresenter.InitializeMonster(gameState);
+            yield return combatPresenter.InitializeMonster(gameState);
             yield return combatManager.Simulate(gameState);
 
-            if (gameState.party.characters.Count > 0)
+            if (gameState.party.aliveCharacters.Count > 0)
             {
                 gameState.EnterCombatWithMonster(orc);
-                combatPresenter.InitializeMonster(gameState);
+                yield return combatPresenter.InitializeMonster(gameState);
                 yield return combatManager.Simulate(gameState);
             }
 
-            if (gameState.party.characters.Count > 0)
+            if (gameState.party.aliveCharacters.Count > 0)
             {
                 gameState.EnterCombatWithMonster(azer);
-                combatPresenter.InitializeMonster(gameState);
+                yield return combatPresenter.InitializeMonster(gameState);
                 yield return combatManager.Simulate(gameState);
             }
 
 
 
-            if (gameState.party.characters.Count > 0)
+            if (gameState.party.aliveCharacters.Count > 0)
             {
                 gameState.EnterCombatWithMonster(troll);
-                combatPresenter.InitializeMonster(gameState);
+                yield return combatPresenter.InitializeMonster(gameState);
                 yield return combatManager.Simulate(gameState);
             }
 
-            if (gameState.party.characters.Count == 0)
+            if (gameState.party.aliveCharacters.Count == 0)
             {
                 Console.WriteLine($"The party was defeated.");
             }
-            else if (gameState.party.characters.Count != 1)
+            else if (gameState.party.aliveCharacters.Count != 1)
             {
-                Console.WriteLine($"After 3 battles, {StringHelper.JoinWithAnd(gameState.party.characters.Select(x => x.displayName).ToList())} emerge victorious.");
+                Console.WriteLine($"After 3 battles, {StringHelper.JoinWithAnd(gameState.party.aliveCharacters.Select(x => x.displayName).ToList())} emerge victorious.");
             }
             else
             {
-                Console.WriteLine($"After 3 battles, {gameState.party.characters[0].displayName} emerges victorious.");
+                Console.WriteLine($"After 3 battles, {gameState.party.aliveCharacters[0].displayName} emerges victorious.");
             }
         }
     }
