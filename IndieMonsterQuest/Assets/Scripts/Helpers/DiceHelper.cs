@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 namespace MonsterQuest
@@ -31,6 +33,18 @@ namespace MonsterQuest
             result += fixedBonus;
 
             return result;
+        }
+
+        public static int StatRoll()
+        {
+            List<int> rolls = new List<int>();
+            for (int i = 0; i < 4; i++)
+            {
+                rolls.Add(Roll("1d6"));
+            }
+            rolls.Remove(rolls.Min());
+
+            return rolls.Sum();
         }
     }
 }

@@ -15,5 +15,6 @@ namespace MonsterQuest
         [SerializeField] public SizeCategory sizeCategory;
         [SerializeField] public ArmorType armorType;
         [SerializeField] public List<WeaponType> weaponTypes;
+        [SerializeField] public AbilityScores abilityScores;
     }
 }

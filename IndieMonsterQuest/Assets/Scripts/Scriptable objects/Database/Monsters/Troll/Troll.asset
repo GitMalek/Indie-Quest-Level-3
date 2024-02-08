@@ -22,3 +22,16 @@ MonoBehaviour:
   weaponTypes:
   - {fileID: 11400000, guid: be894090db6718541a8448cb080d0d49, type: 2}
   - {fileID: 11400000, guid: 333af872cf915a5498c26fdf685931b8, type: 2}
+  abilityScores:
+    <strength>k__BackingField:
+      _score: 18
+    <dexterity>k__BackingField:
+      _score: 13
+    <constitution>k__BackingField:
+      _score: 20
+    <intelligence>k__BackingField:
+      _score: 7
+    <wisdom>k__BackingField:
+      _score: 9
+    <charisma>k__BackingField:
+      _score: 7

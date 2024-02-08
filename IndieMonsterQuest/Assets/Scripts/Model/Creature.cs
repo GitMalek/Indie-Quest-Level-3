@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build.Pipeline;
 using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceProviders.Simulation;
 
@@ -31,6 +32,8 @@ namespace MonsterQuest
         public LifeStatus lifeStatus { get; protected set; }
 
         public abstract int armorClass { get; }
+
+        public abstract AbilityScores abilityScores { get; }
 
         public Creature(string displayName, Sprite bodySprite, SizeCategory sizeCategory)
         {
@@ -73,6 +76,27 @@ namespace MonsterQuest
             hitPoints = hitPointsMaximum;
         }
 
-
+        public Ability getAttackModifier(WeaponType weaponType)
+        {
+            if (weaponType.isRanged)
+            {
+                return Ability.Dexterity;
+            }
+            else if (weaponType.isFinesse)
+            {
+                if (abilityScores.dexterity > abilityScores.strength)
+                {
+                    return Ability.Dexterity;
+                }
+                else
+                {
+                    return Ability.Strength;
+                }
+            }
+            else
+            {
+                return Ability.Strength;
+            }
+        }
     }
 }

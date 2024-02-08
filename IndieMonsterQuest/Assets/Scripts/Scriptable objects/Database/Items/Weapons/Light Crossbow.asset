@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17967075f78a431478bcd3d8d2f67b21, type: 3}
-  m_Name: Troll Bite
+  m_Name: Light Crossbow
   m_EditorClassIdentifier: 
-  displayName: Bite
-  weight: 0
-  damageRoll: 1d6
-  isRanged: 0
+  displayName: Light Crossbow
+  weight: 5
+  damageRoll: 1d8
+  isRanged: 1
   isFinesse: 0

@@ -16,6 +16,8 @@ namespace MonsterQuest
         public override IEnumerable<bool> deathSavingThrows => _deathSavingThrows;
         public List<bool> _deathSavingThrows = new List<bool>();
 
+        public override AbilityScores abilityScores { get; } = new AbilityScores();
+
         public Character(string displayName, Sprite bodySprite, int hitPointsMaximum, SizeCategory sizeCategory, WeaponType weaponType, ArmorType armorType) : base(displayName, bodySprite, sizeCategory)
         {
             this.displayName = displayName;
@@ -24,6 +26,12 @@ namespace MonsterQuest
             this.sizeCategory = sizeCategory;
             this.weaponType = weaponType;
             this.armorType = armorType;
+
+            for (int i = 1; i <= 6; i++)
+            {
+                abilityScores[(Ability)i].score = DiceHelper.StatRoll();
+            }
+
 
             Initialize();
         }
@@ -178,7 +186,7 @@ namespace MonsterQuest
         {
             if (lifeStatus == LifeStatus.Conscious)
             {
-                return new AttackAction(this, gameState.combat.monster, this.weaponType);
+                return new AttackAction(this, gameState.combat.monster, weaponType, getAttackModifier(weaponType));
             }
             else
             {

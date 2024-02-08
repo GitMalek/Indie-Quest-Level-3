@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace MonsterQuest
@@ -10,13 +11,17 @@ namespace MonsterQuest
         private Creature target;
 
         private WeaponType weaponType;
-        int attackRoll;
+        private int attackRoll;
 
-        public AttackAction(Creature attacker, Creature target, WeaponType weaponType)
+        private Ability? ability;
+
+
+        public AttackAction(Creature attacker, Creature target, WeaponType weaponType, Ability? ability = null)
         {
             this.attacker = attacker;
             this.target = target;
             this.weaponType = weaponType;
+            this.ability = ability;
         }
 
         public IEnumerator Execute()
@@ -24,22 +29,27 @@ namespace MonsterQuest
             yield return attacker.presenter.FaceCreature(target);
             yield return attacker.presenter.Attack();
 
+            attackRoll = DiceHelper.Roll("1d20");
+
+            Ability weaponAbility = (Ability)ability;
+            int attackModifier = attacker.abilityScores[weaponAbility].modifier;
+            int toHit = attackRoll + attackModifier;
+
+            Console.WriteLine($"{attacker.displayName} rolled a {attackRoll}! with their {ability} bonus of {attackModifier}, it's a {toHit} to hit!");
+
             if (target.lifeStatus != LifeStatus.UnconsciousUnstable && target.lifeStatus != LifeStatus.UnconsciousStable)
             {
-                attackRoll = DiceHelper.Roll("1d20");
-                Console.WriteLine($"{attacker.displayName} rolled a {attackRoll} to hit!");
-
                 if (attackRoll == 20)
                 {
                     Console.WriteLine("Critical hit!");
-                    int damage = DiceHelper.Roll(weaponType.damageRoll) + DiceHelper.Roll(weaponType.damageRoll);
+                    int damage = DiceHelper.Roll(weaponType.damageRoll) + DiceHelper.Roll(weaponType.damageRoll) + attackModifier;
                     Console.WriteLine($"{attacker.displayName} hit with a {weaponType.displayName} for {damage} damage! {target.displayName} has {Mathf.Max(0, target.hitPoints - damage)} HP left.");
                     yield return target.ReactToDamage(damage, true);
                 }
-                else if (attackRoll >= target.armorClass)
+                else if (toHit >= target.armorClass)
                 {
                     Console.WriteLine($"It beats the {target.displayName}'s {target.armorClass} AC!");
-                    int damage = DiceHelper.Roll(weaponType.damageRoll);
+                    int damage = DiceHelper.Roll(weaponType.damageRoll) + attackModifier;
                     Console.WriteLine($"{attacker.displayName} hit with a {weaponType.displayName} for {damage} damage! {target.displayName} has {Mathf.Max(0, target.hitPoints - damage)} HP left.");
                     yield return target.ReactToDamage(damage);
 
@@ -55,7 +65,7 @@ namespace MonsterQuest
             }
             else
             {
-                int damage = DiceHelper.Roll(weaponType.damageRoll) + DiceHelper.Roll(weaponType.damageRoll);
+                int damage = DiceHelper.Roll(weaponType.damageRoll) + DiceHelper.Roll(weaponType.damageRoll) + attackModifier;
                 Console.WriteLine($"{attacker.displayName} hit with a {weaponType.displayName} for {damage} damage! {target.displayName} has {Mathf.Max(0, target.hitPoints - damage)} HP left.");
                 yield return target.ReactToDamage(damage, true);
             }

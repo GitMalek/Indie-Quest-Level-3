@@ -16,6 +16,9 @@ namespace MonsterQuest
         public override int armorClass => _armorClass;
         public int _armorClass;
 
+        public override AbilityScores abilityScores => _abilityScores;
+        public AbilityScores _abilityScores;
+
         public Monster(MonsterType type) : base(type.displayName, type.bodySprite, type.sizeCategory)
         {
             displayName = type.displayName;
@@ -23,6 +26,7 @@ namespace MonsterQuest
             hitPointsMaximum = Mathf.Max(1, DiceHelper.Roll($"{type.hitPointsRoll}"));
             sizeCategory = type.sizeCategory;
             _armorClass = type.armorClass;
+            _abilityScores = type.abilityScores;
 
             weapons = type.weaponTypes;
 
@@ -31,10 +35,23 @@ namespace MonsterQuest
 
         public override IAction TakeTurn(GameState gameState)
         {
-            int targetIndex = Random.Range(0, gameState.party.aliveCharacters.Count);
+            int targetIndex;
+            if (abilityScores.intelligence < 7)
+            {
+                targetIndex = Random.Range(0, gameState.party.aliveCharacters.Count);
+            }
+            else
+            {
+                List<int> hitPoints = new List<int>();
+                foreach (Character character in gameState.party.aliveCharacters)
+                {
+                    hitPoints.Add(character.hitPoints);
+                }
+                targetIndex = hitPoints.IndexOf(hitPoints.Min());
+            }
             int weaponChoice = Random.Range(0, gameState.combat.monster.weapons.Count);
 
-            return new AttackAction(this, gameState.party.aliveCharacters[targetIndex], gameState.combat.monster.weapons[weaponChoice]);
+            return new AttackAction(this, gameState.party.aliveCharacters[targetIndex], gameState.combat.monster.weapons[weaponChoice], getAttackModifier(gameState.combat.monster.weapons[weaponChoice]));
         }
     }
 }
